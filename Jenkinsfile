@@ -5,6 +5,6 @@ node('master') {
   }
   stage('Deploy configuration') {
     sh 'git remote add deploy git@' + env.DEPLOY_SERVER + ':nexteuropa-vcl/' + env.BRANCH_NAME + '.git'
-    sh 'git push deploy master'
+    sh 'git push deploy ' + env.BRANCH_NAME + ':master'
   }
 }
