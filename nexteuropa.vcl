@@ -1,7 +1,9 @@
 sub vcl_recv {
   # remove cookies on static resources
   if (req.url ~ "(?i)\.(css|js|jpg|jpeg|gif|png|ico)(\?.*)?$") {
-        unset req.http.Cookie;
+    unset req.http.Cookie;
+    # if backend is down/slow, keep serving stall content for 24h
+    req.grace = 24h;
   }
 }
 
@@ -10,7 +12,7 @@ sub vcl_backend_response {
   if (req.url ~ "(?i)\.(css|js|jpg|jpeg|gif|png|ico)(\?.*)?$") {
     # cache content for 1h
     set beresp.ttl = 1h;
-    # if backend is down, keep serving stall content for 48h
-    set beresp.stale_if_error = 48h;
+    #  keep stall content for 24h
+    set beresp.grace = 24h;
   }
 }
