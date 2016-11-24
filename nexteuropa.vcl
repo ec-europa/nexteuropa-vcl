@@ -3,7 +3,7 @@ sub vcl_recv {
   if (req.url ~ "(?i)\.(css|js|jpg|jpeg|gif|png|ico)(\?.*)?$") {
     unset req.http.Cookie;
     // if backend is down/slow, keep serving stall content for 24h
-    set req.grace = 24h;
+    //set req.grace = 24h;
   }
 }
 
