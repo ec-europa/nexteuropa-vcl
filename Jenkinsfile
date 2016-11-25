@@ -1,5 +1,8 @@
 node('master') {
   checkout scm
+  stage('Validate VCL') {
+    sh 'varnishd -p vcl_dir=$(pwd) -C -f testing.vcl -n /tmp'
+  }
   stage('Deploy configuration') {
     if( env.BRANCH_NAME != 'acceptance' ) {
       input('Proceed with deployment to ' + env.BRANCH_NAME + '?')
