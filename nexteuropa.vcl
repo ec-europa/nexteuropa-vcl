@@ -1,3 +1,5 @@
+vcl 4.0;
+
 sub vcl_recv {
   // remove cookies on static resources
   if (req.url ~ "(?i)\.(css|js|jpg|jpeg|gif|png|ico)(\?.*)?$") {
