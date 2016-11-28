@@ -1,2 +1,2 @@
-include "nexteuropa/clean_cookie.vcl"
-include "nexteuropa/cache_policy.vcl"
+include "nexteuropa/clean_cookie.vcl";
+include "nexteuropa/cache_policy.vcl";
