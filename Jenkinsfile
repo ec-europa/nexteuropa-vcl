@@ -1,7 +1,7 @@
 node('master') {
   checkout scm
   stage('Validate VCL') {
-    sh '[ -f nexteuropa ] || ln -s . nexteuropa'
+    sh '[ -L nexteuropa ] || ln -s . nexteuropa'
     sh 'varnishd -p vcl_dir=$(pwd) -C -f testing.vcl -n /tmp'
     sh 'rm nexteuropa'
   }
