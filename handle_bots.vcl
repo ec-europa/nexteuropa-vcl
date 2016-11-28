@@ -4,7 +4,6 @@ sub vcl_recv {
         return (
           synth(503, "Disallowed")
         );
-        error 503 "Disallowed";
     }
     if (req.http.User-Agent ~ "(?i)(vspider|Scrapy/)") {
         set req.http.X-is-bot = "yes";
