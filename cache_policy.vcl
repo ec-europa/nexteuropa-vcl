@@ -5,5 +5,7 @@ sub vcl_backend_response {
     set beresp.ttl = 1h;
     //  keep stall content for 24h
     set beresp.grace = 24h;
+    //browser cache
+    set beresp.http.Cache-Control = "public,max-age=3600";
   }
 }
