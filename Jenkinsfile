@@ -1,7 +1,9 @@
 node('master') {
   checkout scm
   stage('Validate VCL') {
+    sh '[ -L nexteuropa ] || ln -s . nexteuropa'
     sh 'varnishd -p vcl_dir=$(pwd) -C -f testing.vcl -n /tmp'
+    sh 'rm nexteuropa'
   }
   stage('Deploy configuration') {
     if( env.BRANCH_NAME != 'acceptance' ) {

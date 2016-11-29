@@ -6,4 +6,4 @@ backend default {
   .host = "127.0.0.1";
 }
 
-include "nexteuropa.vcl";
+include "nexteuropa/nexteuropa.vcl";
