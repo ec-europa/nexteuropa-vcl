@@ -10,7 +10,7 @@ sub vcl_recv {
 
   // Clean every cookie, except NO_CACHE and Drupal
 
-  if ( req.http.cookie && req.http.X-FPFIS-Drupal-Session ) {
+  if ( req.http.cookie && req.http.X-FPFIS-Drupal-SessionDISABLED ) {
     cookie.parse(req.http.cookie);
     // remove every cookie that's not drupal related
     cookie.filter_except("NO_CACHE," + req.http.X-FPFIS-Drupal-Session);
