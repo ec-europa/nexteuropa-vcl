@@ -1,6 +1,6 @@
 sub vcl_recv {
   if (req.http.Accept-Encoding) {
-    if ( req.url ~ "(?i)\.(bz2|gif|js|otf|pdf|png|rar|svg|swf|tbz|tgz|ttf|woff2?|zip)(\?(itok=)?[a-z0-9_=\.\-]+)?$") {
+    if ( req.url ~ "(?i)\.(bz2|gif|otf|pdf|png|rar|svg|swf|tbz|tgz|ttf|woff2?|zip)(\?(itok=)?[a-z0-9_=\.\-]+)?$") {
             # No point in compressing these
             unset req.http.Accept-Encoding;
         } elsif (req.http.Accept-Encoding ~ "gzip") {
