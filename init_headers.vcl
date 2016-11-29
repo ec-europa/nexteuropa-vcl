@@ -43,7 +43,7 @@ sub compute_drupal_session_cookie_name {
             }
             else {
                 # Secure cookies have an extra leading 'S'.
-                if (req.http.X-Proto == "https") {
+                if (req.http.X-Forwarded-Proto == "https") {
                     set req.http.X-FPFIS-Drupal-Session = "S" + req.http.X-FPFIS-Drupal-Session;
                 }
             }
