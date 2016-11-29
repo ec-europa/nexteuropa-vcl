@@ -1,6 +1,9 @@
 sub vcl_backend_response { 
   // for static content
-  if (bereq.url ~ "(?i)\.(css|js|jpg|jpeg|gif|png|svg|ico)(?[wd=.-]+)?$") {
+  if ( bereq.url ~ "(?i)\.(bz2|css|eot|gif|gz|html?|ico|jpe?g|js|mp3|ogg|otf|pdf|png|rar|svg|swf|tbz|tgz|ttf|woff2?|zip)(\?(itok=)?[a-z0-9_=\.\-]+)?$"
+       && 
+       bereq.url !~ "/system/storage/serve"
+    ) {
     // cache content for 1h
     set beresp.ttl = 1h;
     //  keep stall content for 24h
