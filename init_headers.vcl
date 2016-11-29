@@ -19,13 +19,13 @@ sub compute_drupal_session_cookie_name {
     # Ensure that, if successful, the computation is made only once per request.
     if (!req.http.X-FPFIS-Drupal-Session || req.http.X-FPFIS-Drupal-Session ~ "^$") {
         # Ensure we have the two values required for the computation
-        if (!req.http.Host || !req.http.X-FPFIS-Drupal-Base-Path) {
+        if (!req.http.Host || !req.http.X-FPFIS-Application-Base-Path) {
             # We do not have the required values, set a non-NULL empty string as result.
             set req.http.X-FPFIS-Drupal-Session = "";
         }
         else {
-            # Clean X-FPFIS-Drupal-Base-Path: no double /
-            set req.http.X-FPFIS-Drupal-Base-Path-Cleaned = regsuball(req.http.X-FPFIS-Drupal-Base-Path, "/+", "/");
+            # Clean X-FPFIS-Application-Base-Path: no double /
+            set req.http.X-FPFIS-Drupal-Base-Path-Cleaned = regsuball(req.http.X-FPFIS-Application-Base-Path, "/+", "/");
             # Drupal expects an empty string as $base_path instead of "/":
             if (req.http.X-FPFIS-Drupal-Base-Path-Cleaned ~ "^/+$") {
                 set req.http.X-FPFIS-Drupal-Base-Path-Cleaned = "";
