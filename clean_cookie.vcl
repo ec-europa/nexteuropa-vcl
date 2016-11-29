@@ -20,3 +20,12 @@ sub vcl_recv {
     unset req.http.cookie;
   }
 }
+
+sub vcl_backend_response {
+  // if we know which cookie drupal should set : 
+  // and we can't find it in what the backend wants :
+  if( beresp.http.set-cookie !~ "SESS") {
+    // drop it (it can be done in JS)
+    unset beresp.http.set-cookie;
+  }
+}
