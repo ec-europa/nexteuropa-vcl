@@ -22,11 +22,7 @@ sub vcl_recv {
 }
 
 sub vcl_backend_response {
-  // if we know which cookie drupal should set : 
-  // and we can't find it in what the backend wants :
-  if( beresp.http.set-cookie !~ "SESS") {
-    std.log("Non session cookies removed");
-    // drop it (it can be done in JS)
-    unset beresp.http.set-cookie;
+  if ( beresp.http.set-cookie ) {
+    header.remove(beresp.http.Set-Cookie, "language=");
   }
 }
