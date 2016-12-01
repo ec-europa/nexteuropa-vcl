@@ -1,5 +1,5 @@
 # nexteuropa-vcl
-NextEuropa VCL configuration
+Base NextEuropa VCL configuration
 
 ## Usage :
 - Basic requirements (vmod) are mentionned in testing.vcl
