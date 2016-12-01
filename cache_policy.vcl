@@ -5,7 +5,7 @@ sub vcl_backend_response {
         bereq.method == "GET"
     ) {
         // default behavior for request without any cookie :
-        if ( !bereq.http.cookie || req.http.X-FPFIS-Drupal-Path ~ "/ecas(\?.*)?$" || req.url ~ "/ecas(\?.*)?$" ) {
+        if ( !bereq.http.cookie ) {
             // cache content for 10m;
             set beresp.ttl = 10m;
             //  keep stall content for 24h
