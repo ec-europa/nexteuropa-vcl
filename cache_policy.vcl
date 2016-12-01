@@ -13,7 +13,7 @@ sub vcl_backend_response {
             //  keep stall content for 24h
             set beresp.grace = 24h;
             //browser cache
-            set beresp.http.Cache-Control = "public,max-age=600,s-maxage=0,must-revalidate";
+            set beresp.http.Cache-Control = "private";
         }
 
         // for static content
