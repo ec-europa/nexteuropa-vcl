@@ -26,12 +26,5 @@ sub vcl_backend_response {
             //browser cache
             set beresp.http.Cache-Control = "public,max-age=3600,s-maxage=3600";
          }
-
-        // default behavior for request with ECAS :
-        if ( bereq.url ~ "/ecas.*?$" ) {
-            set beresp.ttl = 0s;
-            set beresp.grace = 0s;
-        }
-
     }
 }

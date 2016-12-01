@@ -29,7 +29,7 @@ sub vcl_recv {
 /*
 sub vcl_backend_response {
     // Only allow POST request to set cookies
-    if(bereq.method != "POST") {
+    if(bereq.method != "POST" && bereq.url !~ "/ecas.*?$") {
         unset beresp.http.set-cookie;
     }
 }
