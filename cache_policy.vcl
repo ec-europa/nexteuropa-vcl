@@ -3,6 +3,8 @@ sub vcl_backend_response {
         (bereq.method == "HEAD" || bereq.method == "GET")
         &&
         beresp.status == 200
+        && 
+        (bereq.url !~ "/ecas")
         ) {
         // default behavior for request without any cookie :
         if ( !bereq.http.cookie ) {
