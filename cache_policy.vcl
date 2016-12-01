@@ -28,7 +28,7 @@ sub vcl_backend_response {
          }
 
         // default behavior for request with ECAS :
-        if ( req.url ~ "/ecas.*?$" ) {
+        if ( bereq.url ~ "/ecas.*?$" ) {
             set beresp.ttl = 0s;
             set beresp.grace = 0s;
         }
