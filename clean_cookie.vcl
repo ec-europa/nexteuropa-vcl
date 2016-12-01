@@ -18,7 +18,7 @@ sub vcl_recv {
         if ( req.http.cookie && req.http.X-FPFIS-Drupal-Session ) {
             cookie.parse(req.http.cookie);
             // remove every cookie that's not drupal related
-            cookie.filter_except("NO_CACHE," + req.http.X-FPFIS-Drupal-Session);
+            cookie.filter_except("drupal_stick_to_https,NO_CACHE," + req.http.X-FPFIS-Drupal-Session);
             set req.http.cookie = cookie.get_string();
         }
         if (req.http.cookie == "") {
@@ -26,11 +26,11 @@ sub vcl_recv {
         }
     }
 }
-/*
+
 sub vcl_backend_response {
     // Only allow POST and ECAS request to set cookies
     if(bereq.method != "POST" && bereq.url !~ "/ecas.*?$") {
         unset beresp.http.set-cookie;
     }
 }
-*/
+
