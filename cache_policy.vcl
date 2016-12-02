@@ -30,3 +30,9 @@ sub vcl_backend_response {
          }
     }
 }
+sub vcl_hash {
+    if (req.http.X-Forwarded-Proto) {
+      hash_data(req.http.X-Forwarded-Proto);
+    }
+
+}
