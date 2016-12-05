@@ -8,3 +8,11 @@ sub vcl_recv {
     return(synth(301, "https://"  + req.http.host + req.url ));
   }
 }
+
+sub vcl_synth {
+    if (resp.status == 301 || resp.status == 302) {
+        set resp.http.location = resp.reason;
+        set resp.reason = "Moved";
+        return (deliver);
+    }
+}
