@@ -4,7 +4,7 @@ sub vcl_recv {
     if ( 
       req.http.X-FPFIS-Is-Bot == "yes" 
         && 
-      req.url !~ "(?i)\.(bz2|css|eot|gif|gz|ico|jpe?g|js|mp3|ogg|otf|pdf|png|rar|svg|swf|tbz|tgz|ttf|woff2?|zip)$"  
+      req.url !~ "(?i)\.(bz2|css|eot|gif|gz|ico|jpe?g|js|mp3|ogg|otf|pdf|png|rar|svg|swf|tbz|tgz|ttf|woff2?|zip)(\?.*|)$"  
         &&
       vsthrottle.is_denied(req.http.user-agent, 5, 10s)
     ) {
