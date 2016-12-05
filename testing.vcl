@@ -4,6 +4,7 @@ import std;
 import drupal7;
 import cookie;
 import header;
+import vsthrottle;
 
 backend default {
   .host = "127.0.0.1";
