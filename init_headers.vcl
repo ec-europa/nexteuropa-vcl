@@ -1,5 +1,6 @@
 sub vcl_recv {
   call compute_drupal_session_cookie_name;
+  call vcl_default_add_x_forwarded_for_header;
   if (req.http.Accept-Encoding) {
     if ( req.url ~ "(?i)\.(bz2|gif|otf|pdf|png|rar|svg|swf|tbz|tgz|ttf|woff2?|zip)(\?(itok=)?[a-z0-9_=\.\-]+)?$") {
             # No point in compressing these
@@ -52,3 +53,14 @@ sub compute_drupal_session_cookie_name {
     }
 }
 
+sub vcl_default_add_x_forwarded_for_header {
+     if (req.restarts == 0) {
+         if (req.http.x-forwarded-for) {
+             set req.http.X-Forwarded-For =
+             req.http.X-Forwarded-For + ", " + client.ip;
+         }
+         else {
+             set req.http.X-Forwarded-For = client.ip;
+         }
+     }
+}
