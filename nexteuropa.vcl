@@ -1,6 +1,7 @@
 sub vcl_backend_response {
   std.log("backend_used:" + beresp.backend.name);
 }
+include "nexteuropa/error_page.vcl";
 include "nexteuropa/secure.vcl";
 include "nexteuropa/handle_bots.vcl";
 include "nexteuropa/throttle.vcl";
