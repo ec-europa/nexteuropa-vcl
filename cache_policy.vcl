@@ -4,7 +4,7 @@ sub vcl_backend_response {
         &&
         beresp.status == 200
         && 
-        (bereq.url !~ "/ecas" || bereq.url !~ "/logout" || bereq.url !~ "/reset")
+        (bereq.url !~ "/+(ecas|logout|reset|user)")
         ) {
         // default behavior for request without any cookie :
         if ( !bereq.http.cookie ) {
@@ -19,7 +19,7 @@ sub vcl_backend_response {
         // for static content
         if ( bereq.url ~ "(?i)\.(bz2|css|eot|gif|gz|ico|jpe?g|js|mp3|ogg|otf|pdf|png|rar|svg|swf|tbz|tgz|ttf|woff2?|zip)(\?.*|)$"
            &&
-           bereq.url !~ "/system/storage/serve"
+           bereq.url !~ "/+system/+storage/+serve"
         ) {
             // cache content for 1h
             set beresp.ttl = 1h;
