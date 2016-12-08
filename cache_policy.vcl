@@ -4,7 +4,7 @@ sub vcl_backend_response {
         &&
         beresp.status == 200
         && 
-        (bereq.url !~ "/ecas" || bereq.url !~ "/logout" || bereq.url !~ "/reset")
+        (bereq.url !~ "/(ecas|logout|reset|user)")
         ) {
         // default behavior for request without any cookie :
         if ( !bereq.http.cookie ) {
