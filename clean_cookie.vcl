@@ -8,7 +8,7 @@ sub vcl_recv {
         if (
             req.url ~ "(?i)\.(bz2|css|eot|gif|gz|ico|jpe?g|js|mp3|ogg|otf|pdf|png|rar|svg|swf|tbz|tgz|ttf|woff2?|zip)(\?.*|)$"
             &&
-            req.url !~ "/system/storage/serve"
+            req.url !~ "/+system/+"
         ) {
             std.log("Static resources, removing cookie");
             unset req.http.Cookie;
