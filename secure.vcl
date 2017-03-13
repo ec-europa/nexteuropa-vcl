@@ -1,4 +1,12 @@
+acl blacklist {
+    "192.168.0.0"/16;
+}
+
 sub vcl_recv {
+  // Blacklist
+  if(req.http.client-ip && req.http.client-ip ~ blacklist) {
+    return(synth(403,"Banned"));
+  }
   // If https sticky cookie is set, redirect
   if( req.http.cookie ~ "drupal_stick_to_https" && req.http.X-Forwarded-Proto != "https" ) {
     return(synth(301, "https://"  + req.http.host + req.url ));
