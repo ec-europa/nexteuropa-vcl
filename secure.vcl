@@ -4,7 +4,7 @@ acl blacklist {
 
 sub vcl_recv {
   // Blacklist
-  if(req.http.client-ip && req.http.client-ip ~ blacklist) {
+  if(req.http.client-ip && std.ip(req.http.client-ip, "0.0.0.0") ~ blacklist) {
     return(synth(403,"Banned"));
   }
   // If https sticky cookie is set, redirect
