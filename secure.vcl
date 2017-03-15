@@ -16,7 +16,7 @@ sub vcl_recv {
     return(synth(301, "https://"  + req.http.host + req.url ));
   }
   // Basic url sercure list :
-  if ( req.url ~ "\.sql?\??.*$" || req.url ~ "\/\.(git|svn|htpasswd|htaccess)" ) {
+  if ( req.url ~ "(?i)\.(sql?|dump)\??.*$" || req.url ~ "\/\.(git|svn|htpasswd|htaccess)" ) {
     return(synth(403,"Blacklisted"));
   }
 }
