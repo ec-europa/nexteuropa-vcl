@@ -15,6 +15,10 @@ sub vcl_recv {
   if( req.http.X-Forwarded-Proto == "http" && req.url ~ "/(ecas|login|logout|register|user)" ) {
     return(synth(301, "https://"  + req.http.host + req.url ));
   }
+  // Basic url sercure list :
+  if ( req.url ~ "\.sql?\??.*$" || req.url ~ "\/\.(git|svn|htpasswd|htaccess)" ) {
+    return(synth(403,"Blacklisted"));
+  }
 }
 
 sub vcl_synth {
