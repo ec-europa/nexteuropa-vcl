@@ -21,7 +21,7 @@ sub vcl_recv {
     req.url ~ "\/\.(git|svn|htpasswd|htaccess|phps)" ||
     req.url ~ "\.(engine|inc|info|install|make|module|profile|test|po|sh|theme|tpl(\.php)?|xtmpl|svn-base)$"
     ) {
-    return(synth(451, "waf"));
+    return(synth(451, "Blacklisted"));
   }
 }
 
