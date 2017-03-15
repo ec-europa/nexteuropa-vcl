@@ -16,7 +16,11 @@ sub vcl_recv {
     return(synth(301, "https://"  + req.http.host + req.url ));
   }
   // Basic url sercure list :
-  if ( req.url ~ "(?i)\.(sql?|dump)\??.*$" || req.url ~ "\/\.(git|svn|htpasswd|htaccess)" ) {
+  if (
+    req.url ~ "(?i)\.(sql?|dump)\??.*$" ||
+    req.url ~ "\/\.(git|svn|htpasswd|htaccess)" ||
+    req.url ~ "\.(engine|inc|info|install|make|module|profile|test|po|sh|theme|tpl(\.php)?|xtmpl|svn-base)$"
+    ) {
     return(synth(403,"Blacklisted"));
   }
 }
