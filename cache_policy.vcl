@@ -8,16 +8,9 @@ sub vcl_backend_response {
         ) {
         // default behavior for request without any cookie :
         if ( !bereq.http.cookie && 
-        !(bereq.url ~ "^/status\.php$" ||
-         bereq.url ~ "/+admin" ||
-         bereq.url ~ "/+admin/+.*$" ||
-         bereq.url ~ "/+user" ||
-         bereq.url ~ "/+user/+.*$" ||
-         bereq.url ~ "/+users/+.*$" ||
-         bereq.url ~ "/+info/+.*$" ||
-         bereq.url ~ "/+flag/+.*$" ||
-         bereq.url ~ ".*/+ajax/+.*$" ||
-         bereq.url ~ ".*/+ahah/+.*$" ||
+        !(bereq.url ~ "^/+status\.php$" ||
+         bereq.url ~ "/+(admin|users?|info|flag)(/+.*)?$" ||
+         bereq.url ~ ".*/+a(jax|hah)/.*$" ||
          bereq.url ~ "/+system/+files/+.*$")) {
             // cache content for 10m;
             set beresp.ttl = 10m;
