@@ -7,7 +7,18 @@ sub vcl_backend_response {
         (bereq.url !~ "/+(ecas|logout|reset|user)")
         ) {
         // default behavior for request without any cookie :
-        if ( !bereq.http.cookie ) {
+        if ( !bereq.http.cookie && 
+        !(bereq.url ~ "^/status\.php$" ||
+         bereq.url ~ "/+admin" ||
+         bereq.url ~ "/+admin/+.*$" ||
+         bereq.url ~ "/+user" ||
+         bereq.url ~ "/+user/+.*$" ||
+         bereq.url ~ "/+users/+.*$" ||
+         bereq.url ~ "/+info/+.*$" ||
+         bereq.url ~ "/+flag/+.*$" ||
+         bereq.url ~ ".*/+ajax/+.*$" ||
+         bereq.url ~ ".*/+ahah/+.*$" ||
+         bereq.url ~ "/+system/+files/+.*$")) {
             // cache content for 10m;
             set beresp.ttl = 10m;
             //  keep stall content for 24h
