@@ -18,7 +18,7 @@ sub vcl_recv {
   // Basic url sercure list :
   if (
     req.url ~ "(?i)\.(sql?|dump)\??.*$" ||
-    req.url ~ "\/\.(git|svn|htpasswd|htaccess)" ||
+    req.url ~ "\/\.(git|svn|htpasswd|htaccess|phps)" ||
     req.url ~ "\.(engine|inc|info|install|make|module|profile|test|po|sh|theme|tpl(\.php)?|xtmpl|svn-base)$"
     ) {
     return(synth(403,"Blacklisted"));
