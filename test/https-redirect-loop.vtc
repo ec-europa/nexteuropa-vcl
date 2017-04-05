@@ -1,0 +1,34 @@
+varnishtest "Redirect cache issue"
+
+server s1 -repeat 10 {
+       rxreq 
+       txresp -body "myjsbody2\n"
+} -start
+
+varnish v1 -vcl+backend {
+
+  include "test/assets/c4d.vcl";
+  include "testing.vcl";
+  import directors;
+
+  sub vcl_init {
+      new cluster = directors.random();
+      cluster.add_backend(s1, 1);
+  }
+
+  sub vcl_backend_fetch {
+    set bereq.backend = cluster.backend();
+  }
+
+} -start
+
+client c1 -repeat 10 {
+    txreq -url "/test.js" -hdr "X-Forwarded-Proto: http"
+    rxresp
+    expect resp.status == 301
+    txreq -url "/test.js" -hdr "X-Forwarded-Proto: https"
+    rxresp
+    expect resp.status == 200
+} 
+
+client c1 -run

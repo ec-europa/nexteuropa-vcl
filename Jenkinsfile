@@ -1,8 +1,8 @@
 node('master') {
   checkout scm
-  stage('Validate VCL') {
+  stage('Test VCL') {
     sh '[ -L nexteuropa ] || ln -s . nexteuropa'
-    sh 'varnishd -p vcl_dir=$(pwd) -C -f testing.vcl -n /tmp'
+    sh 'varnishtest -v -p vlc_dir=$(pwd) test/*.vtc'
     sh 'rm nexteuropa'
   }
   stage('Deploy configuration') {
