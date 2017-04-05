@@ -2,7 +2,7 @@ node('master') {
   checkout scm
   stage('Test VCL') {
     sh '[ -L nexteuropa ] || ln -s . nexteuropa'
-    sh 'varnishtest -v -p vlc_dir=$(pwd) test/*.vtc'
+    sh 'varnishtest -v -p vcl_dir=$(pwd) test/*.vtc'
     sh 'rm nexteuropa'
   }
   stage('Deploy configuration') {
