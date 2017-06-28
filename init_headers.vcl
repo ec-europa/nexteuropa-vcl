@@ -21,6 +21,7 @@ sub compute_drupal_session_cookie_name {
     if (!req.http.X-FPFIS-Drupal-Session || req.http.X-FPFIS-Drupal-Session ~ "^$") {
         # Ensure we have the two values required for the computation
         if (!req.http.Host || !req.http.X-FPFIS-Application-Base-Path) {
+            std.log("message:Failed to set Drupal cookie");
             # We do not have the required values, set a non-NULL empty string as result.
             set req.http.X-FPFIS-Drupal-Session = "";
         }
@@ -38,11 +39,12 @@ sub compute_drupal_session_cookie_name {
                 req.http.X-FPFIS-Drupal-Base-Path-Cleaned
             );
             if (!req.http.X-FPFIS-Drupal-Session) {
-                # session_name returned NULL: something went wrong, set a
-                # non-NULL empty string as result.
-                set req.http.X-FPFIS-Drupal-Session = "";
+                std.log("message:Failed to generate Drupal cookie");
+                # session_name returned NULL, unset it
+                unset req.http.X-FPFIS-Drupal-Session;
             }
             else {
+                std.log("message:Drupal session cookie stored in req.http.X-FPFIS-Drupal-Session");
                 # Secure cookies have an extra leading 'S'.
                 if (req.http.X-Forwarded-Proto == "https") {
                     set req.http.X-FPFIS-Drupal-Session = "S" + req.http.X-FPFIS-Drupal-Session;

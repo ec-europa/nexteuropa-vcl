@@ -26,6 +26,8 @@ sub vcl_recv {
 }
 
 sub vcl_synth {
+    // Don't cache any synth replies
+    set resp.http.Cache-Control = "private, maxage=0, s-maxage=0";
     if (resp.status == 301 || resp.status == 302) {
         set resp.http.location = resp.reason;
         set resp.reason = "Moved";
