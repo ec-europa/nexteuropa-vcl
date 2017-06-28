@@ -1,7 +1,7 @@
 varnishtest "Redirect cache issue"
 
 # Keep replying 200 with stupid body
-server s1 -repeat 100 {
+server s1 -repeat 30 {
        rxreq 
        txresp -body "myjsbody2\n"
 } -start
@@ -31,7 +31,7 @@ varnish v1 -vcl+backend {
 } -start
 
 # Test cases :
-client c1 -repeat 10 {
+client c1 -repeat 3 {
     # Unauth
     txreq -url "/capacity4dev" -hdr "Host: europa.eu" -hdr "X-Forwarded-Proto: http"
     rxresp
