@@ -1,0 +1,5 @@
+pipeline:
+  test-vcl:
+    image: fpfis/varnish-d7
+    commands:
+      - varnishtest -vp vcl_dir=$(pwd) test/*.vtc
