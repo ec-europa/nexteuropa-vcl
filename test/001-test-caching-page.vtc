@@ -8,7 +8,7 @@ server s1 -repeat 3 {
 } -start
 
 
-# Basic varnish setup :
+# Basic c4d setup :
 varnish v1 -vcl+backend {
   import directors;
 
@@ -35,28 +35,32 @@ varnish v1 -vcl+backend {
 
 # Test cases :
 client c1 {
-    txreq -url "/page.html" -hdr "Host: europa.eu" -hdr "Cookie: SESS9a32487784c6655b2bcc8ff95f7b1b0c=yes"
+    txreq -url "/page.html" -hdr "Host: europa.eu"
     rxresp
-    expect resp.status == 200
+    expect resp.http.Cache-Control == "public,max-age=10,must-revalidate"
 }
 
 # test , check we're at 0
+
+varnish v1 -expect cache_miss == 0
 varnish v1 -expect cache_hit == 0
 varnish v1 -expect n_object == 0
 
 # Run client 1 time
 client c1 -run
 
-# Check object was NOT cached
+# Check the object has been cached
+varnish v1 -expect cache_miss == 1
 varnish v1 -expect cache_hit == 0
-varnish v1 -expect n_object == 0
+varnish v1 -expect n_object == 1
 
 # Run client 2 times
 
 client c1 -run
 client c1 -run
 
-# Check object was NOT cached
+# Check object was delivered from cache 2 times
 
-varnish v1 -expect cache_hit == 0
-varnish v1 -expect n_object == 0
+varnish v1 -expect cache_miss == 1
+varnish v1 -expect cache_hit == 2
+varnish v1 -expect n_object == 1

@@ -1,7 +1,7 @@
 varnishtest "Test static resource caching"
 
 # Keep replying 200 with stupid body
-server s1 {
+server s1 -repeat 3 {
      rxreq
      expect req.url == "/asset.js"
      txresp -body "myjsbody1\n"
