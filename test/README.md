@@ -29,5 +29,18 @@ varnishtest -vp vcl_dir=$(pwd) test/*.vtc
 ### test-drupal7-cookie.vtc
 
  - Test if the Drupal 7 cookie is correctly generated based on path + host
+ 
+ ### test-caching-page.vtc
+ 
+ - Test if HTML (non-static) page are correctly cached
+ - Test if correct browser caching headers are sent
+ 
+### test-caching-static.vtc
+ 
+ - Test if static files are correctly cached
+ - Test if correct browser caching headers are sent
 
+### test-caching-cookie.vtc
+ 
+ - Test if caching is indeed disabled when a auth cookie is set
 
