@@ -2,7 +2,7 @@
 
 sub vcl_recv {
     # invalidate:dydneecirnitnoikOowmucnaygAwjalp (testing cluster)
-    if (req.request ~ "(PURGE|BAN)") &&
+    if (req.method ~ "(PURGE|BAN)") &&
         req.http.X-Invalidate-Type &&
         req.http.Authorization == "Basic aW52YWxpZGF0ZTpkeWRuZWVjaXJuaXRub2lrT293bXVjbmF5Z0F3amFscA==") {
         # A X-Invalidate-Type header means we are dealing with a "Flexible
@@ -16,7 +16,7 @@ sub vcl_recv {
 
 
 sub handle_purge_requests {
-    if (req.request == "PURGE") {
+    if (req.method == "PURGE") {
         # purge does not fit our needs because it only evicts Vary-based
         # variants of an object while we want to get rid of every object
         # matching the given URL and Host.
