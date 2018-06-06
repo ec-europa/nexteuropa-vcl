@@ -2,7 +2,7 @@
 
 sub vcl_recv {
     # invalidate:dydneecirnitnoikOowmucnaygAwjalp (testing cluster)
-    if (req.method ~ "(PURGE|BAN)") &&
+    if (req.method ~ "(PURGE|BAN)" &&
         req.http.X-Invalidate-Type &&
         req.http.Authorization == "Basic aW52YWxpZGF0ZTpkeWRuZWVjaXJuaXRub2lrT293bXVjbmF5Z0F3amFscA==") {
         # A X-Invalidate-Type header means we are dealing with a "Flexible
