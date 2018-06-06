@@ -1,10 +1,10 @@
-varnishtest "Test static resource caching"
+varnishtest "Test Page cache"
 
 # Keep replying 200 with stupid body
 server s1 {
      rxreq
-     expect req.url == "/asset.js"
-     txresp -body "myjsbody1\n"
+     expect req.url == "/page.html"
+     txresp -body "myhtml\n"
 } -start
 
 
@@ -35,9 +35,9 @@ varnish v1 -vcl+backend {
 
 # Test cases :
 client c1 {
-    txreq -url "/asset.js" -hdr "Host: europa.eu"
+    txreq -url "/page.html" -hdr "Host: europa.eu"
     rxresp
-    expect resp.http.Cache-Control == "public,max-age=3600,s-maxage=3600"
+    expect resp.http.Cache-Control == "public,max-age=10,must-revalidate"
 }
 
 # test , check we're at 0
