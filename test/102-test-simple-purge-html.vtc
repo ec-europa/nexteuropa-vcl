@@ -1,10 +1,10 @@
-varnishtest "Test simple purge"
+varnishtest "Test simple purge JS"
 
 # Keep replying 200 with stupid body
 server s1 -repeat 7 {
      rxreq
-     expect req.url == "/asset.js"
-     txresp -body "myjsbody1\n"
+     expect req.url == "/mypage"
+     txresp -body "<html>hello</html>\n"
 } -start
 
 
@@ -33,23 +33,23 @@ varnish v1 -vcl+backend {
 
 
 
-# Client 1, request /asset.js :
+# Client 1, request /mypage :
 client c1 {
-    txreq -url "/asset.js" -hdr "Host: europa.eu"
+    txreq -url "/mypage" -hdr "Host: europa.eu"
     rxresp
-    expect resp.http.Cache-Control == "public,max-age=3600,s-maxage=3600"
+    expect resp.http.Cache-Control == "public,max-age=10,must-revalidate"
 }
 
 # Client 2, tries to purge without creds :
 client c2 {
-    txreq -req PURGE -url "/asset.js" -hdr "Host: europa.eu"
+    txreq -req PURGE -url "/mypage" -hdr "Host: europa.eu"
     rxresp
     expect resp.status == 403
 }
 
 # Client 3, tries to simple purge the URL :
 client c3 {
-    txreq -req PURGE -url "/asset.js" -hdr "Authorization: Basic aW52YWxpZGF0ZTpkeWRuZWVjaXJuaXRub2lrT293bXVjbmF5Z0F3amFscA==" -hdr "Host: europa.eu"
+    txreq -req PURGE -url "/mypage" -hdr "Authorization: Basic aW52YWxpZGF0ZTpkeWRuZWVjaXJuaXRub2lrT293bXVjbmF5Z0F3amFscA==" -hdr "Host: europa.eu"
     rxresp
     expect resp.status == 200
 }
@@ -101,7 +101,7 @@ client c3 -run
 varnish v1 -cliok "ban.list"
 
 
-# asset.js should be gone
+# mypage should be gone
 varnish v1 -expect client_req == 5
 varnish v1 -expect cache_miss == 1
 varnish v1 -expect cache_hit == 2
@@ -111,7 +111,7 @@ varnish v1 -expect bans_completed == 1
 # Run client 1, cache should miss
 client c1 -run
 
-# asset.js should be gone, so not hit
+# mypage should be gone, so not hit
 varnish v1 -expect client_req == 6
 varnish v1 -expect cache_miss == 2
 varnish v1 -expect cache_hit == 2
@@ -120,7 +120,7 @@ varnish v1 -expect n_object == 1
 # Run client 1 again, cache should hit
 client c1 -run
 
-# asset.js should be gone, so not hit
+# mypage should be gone, so not hit
 varnish v1 -expect client_req == 7
 varnish v1 -expect cache_miss == 2
 varnish v1 -expect cache_hit == 3
