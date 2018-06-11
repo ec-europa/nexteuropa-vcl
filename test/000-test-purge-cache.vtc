@@ -1,7 +1,7 @@
 varnishtest "Test static resource caching"
 
 # Keep replying 200 with stupid body
-server s1 -repeat 6 {
+server s1 -repeat 7 {
      rxreq
      expect req.url == "/asset.js"
      txresp -body "myjsbody1\n"
@@ -42,7 +42,7 @@ client c1 {
 
 # Test cases :
 client c2 {
-    txreq -req PURGE -url "/asset.js" -hdr "X-Invalidate-Type: full" -hdr "Host: europa.eu"
+    txreq -req PURGE -url "/asset.js" -hdr "Host: europa.eu"
     rxresp
     expect resp.status == 403
 }
