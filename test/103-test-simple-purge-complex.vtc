@@ -1,10 +1,9 @@
-varnishtest "Test simple purge CSS"
+varnishtest "Test simple purge complex"
 
 # Keep replying 200 with stupid body
-server s1 -repeat 7 {
+server s1 -repeat 8 {
      rxreq
-     expect req.url == "/asset.css"
-     txresp -body "myjsbody1\n"
+     txresp -body "whatever body\n"
 } -start
 
 
@@ -33,8 +32,11 @@ varnish v1 -vcl+backend {
 
 
 
-# Client 1, request /asset.css :
+# Client 1, request /asset.js :
 client c1 {
+    txreq -url "/asset.js" -hdr "Host: europa.eu"
+    rxresp
+    expect resp.http.Cache-Control == "public,max-age=3600,s-maxage=3600"
     txreq -url "/asset.css" -hdr "Host: europa.eu"
     rxresp
     expect resp.http.Cache-Control == "public,max-age=3600,s-maxage=3600"
@@ -42,14 +44,14 @@ client c1 {
 
 # Client 2, tries to purge without creds :
 client c2 {
-    txreq -req PURGE -url "/asset.css" -hdr "Host: europa.eu"
+    txreq -req PURGE -url "/asset.js" -hdr "Host: europa.eu"
     rxresp
     expect resp.status == 403
 }
 
 # Client 3, tries to simple purge the URL :
 client c3 {
-    txreq -req PURGE -url "/asset.css" -hdr "Authorization: Basic aW52YWxpZGF0ZTpkeWRuZWVjaXJuaXRub2lrT293bXVjbmF5Z0F3amFscA==" -hdr "Host: europa.eu"
+    txreq -req PURGE -url "/asset.js" -hdr "Authorization: Basic aW52YWxpZGF0ZTpkeWRuZWVjaXJuaXRub2lrT293bXVjbmF5Z0F3amFscA==" -hdr "Host: europa.eu"
     rxresp
     expect resp.status == 200
 }
@@ -70,10 +72,10 @@ varnish v1 -expect n_object == 0
 client c1 -run
 
 # Check the object has been cached
-varnish v1 -expect client_req == 1
-varnish v1 -expect cache_miss == 1
+varnish v1 -expect client_req == 2
+varnish v1 -expect cache_miss == 2
 varnish v1 -expect cache_hit == 0
-varnish v1 -expect n_object == 1
+varnish v1 -expect n_object == 2
 
 # Run client 1, 2 times. expect 2 cache hit
 
@@ -81,19 +83,19 @@ client c1 -run
 client c1 -run
 
 # Check object was delivered from cache 2 times
-varnish v1 -expect client_req == 3
-varnish v1 -expect cache_miss == 1
-varnish v1 -expect cache_hit == 2
-varnish v1 -expect n_object == 1
+varnish v1 -expect client_req == 6
+varnish v1 -expect cache_miss == 2
+varnish v1 -expect cache_hit == 4
+varnish v1 -expect n_object == 2
 
 # Run client2 once, expect 403
 client c2 -run
 
 # Nothing should change, 403 for purge expected
-varnish v1 -expect client_req == 4
-varnish v1 -expect cache_miss == 1
-varnish v1 -expect cache_hit == 2
-varnish v1 -expect n_object == 1
+varnish v1 -expect client_req == 7
+varnish v1 -expect cache_miss == 2
+varnish v1 -expect cache_hit == 4
+varnish v1 -expect n_object == 2
 
 # Run client 3, doing actual ban
 client c3 -run
@@ -101,29 +103,29 @@ client c3 -run
 varnish v1 -cliok "ban.list"
 
 
-# asset.css should be gone
-varnish v1 -expect client_req == 5
-varnish v1 -expect cache_miss == 1
-varnish v1 -expect cache_hit == 2
-varnish v1 -expect n_object == 1
+# asset.js should be gone
+varnish v1 -expect client_req == 8
+varnish v1 -expect cache_miss == 2
+varnish v1 -expect cache_hit == 4
+varnish v1 -expect n_object == 2
 varnish v1 -expect bans_completed == 1
 
 # Run client 1, cache should miss
 client c1 -run
 
-# asset.css should be gone, so not hit
-varnish v1 -expect client_req == 6
-varnish v1 -expect cache_miss == 2
-varnish v1 -expect cache_hit == 2
-varnish v1 -expect n_object == 1
+# asset.js should be gone, so not hit
+varnish v1 -expect client_req == 10
+varnish v1 -expect cache_miss == 3
+varnish v1 -expect cache_hit == 5
+varnish v1 -expect n_object == 2
 
 # Run client 1 again, cache should hit
 client c1 -run
 
-# asset.css should be gone, so not hit
-varnish v1 -expect client_req == 7
-varnish v1 -expect cache_miss == 2
-varnish v1 -expect cache_hit == 3
-varnish v1 -expect n_object == 1
+# asset.js should be gone, so not hit
+varnish v1 -expect client_req == 12
+varnish v1 -expect cache_miss == 3
+varnish v1 -expect cache_hit == 7
+varnish v1 -expect n_object == 2
 
 

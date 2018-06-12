@@ -1,4 +1,4 @@
-varnishtest "Test simple purge JS"
+varnishtest "Test simple purge HTML"
 
 # Keep replying 200 with stupid body
 server s1 -repeat 7 {

@@ -1,4 +1,4 @@
-varnishtest "Test Page cache"
+varnishtest "Test Page cache with cookie"
 
 # Keep replying 200 with stupid body
 server s1 -repeat 3 {
