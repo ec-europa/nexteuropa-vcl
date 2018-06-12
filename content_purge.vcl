@@ -51,26 +51,31 @@ sub handle_simple_purge_requests {
 # Handle PURGE requests emitted by the "Flexible Purge" Drupal module.
 sub handle_flexible_purge_requests {
     call check_invalidate_headers;
-          std.log("Purge accepted flexible");
+    std.log("Purge accepted flexible");
 
     if (req.http.X-Invalidate-Type == "full") {
         if (req.http.X-Invalidate-Tag) {
-            ban("obj.http.X-Application-Tag == " + req.http.X-Invalidate-Tag);
+            std.log("Tag based purge");
+            ban("req.http.X-Application-Tag == " + req.http.X-Invalidate-Tag);
                 return (synth(200, "PURGED"));
         }
         elseif (req.http.X-Invalidate-Host && req.http.X-Invalidate-Base-Path) {
-            ban("obj.http.X-Host == " + req.http.X-Invalidate-Host + " && obj.http.X-Url ~ ^" + req.http.X-Invalidate-Base-Path);
+            std.log("X-Invalidate-xxx based purge");
+            ban("req.http.host == " + req.http.X-Invalidate-Host + " && req.url ~ ^" + req.http.X-Invalidate-Base-Path);
                 return (synth(200, "PURGED"));
         }
     }
     elseif (req.http.X-Invalidate-Type ~ "^(wildcard|regexp-(multiple|single))$") {
+
         if (req.http.X-Invalidate-Regexp) {
             if (req.http.X-Invalidate-Tag) {
-                ban("obj.http.X-Application-Tag == " + req.http.X-Invalidate-Tag + " && obj.http.X-FPFIS-Drupal-Path ~ " + req.http.X-Invalidate-Regexp);
+                std.log("X-Invalidate-Tag regex based purge");
+                ban("req.http.X-Application-Tag == " + req.http.X-Invalidate-Tag + " && req.http.X-FPFIS-Drupal-Path ~ " + req.http.X-Invalidate-Regexp);
                     return (synth(200, "PURGED"));
             }
             else if (req.http.X-Invalidate-Host) {
-                ban("obj.http.X-Host == " + req.http.X-Invalidate-Host + " && obj.http.X-FPFIS-Drupal-Path ~ " + req.http.X-Invalidate-Regexp);
+                std.log("X-Invalidate-xxx regex based purge");
+                ban("req.http.host == " + req.http.X-Invalidate-Host + " && req.url ~ " + req.http.X-Invalidate-Regexp);
                     return (synth(200, "PURGED"));
             }
         }
