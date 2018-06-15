@@ -3,3 +3,5 @@ pipeline:
     image: fpfis/varnish-d7
     commands:
       - varnishtest -p vcl_dir=$(pwd) test/*.vtc
+    environment:
+      - VARNISH_PURGE_KEY=aW52YWxpZGF0ZTpkeWRuZWVjaXJuaXRub2lrT293bXVjbmF5Z0F3amFscA==

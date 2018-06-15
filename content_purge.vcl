@@ -1,5 +1,3 @@
-### RED WARNING : for testing only, do not merge until secret can be fetched from env
-
 sub vcl_recv {
 
     # invalidate:dydneecirnitnoikOowmucnaygAwjalp (testing cluster)
@@ -9,7 +7,7 @@ sub vcl_recv {
         # Purge" request, which is more powerful but also more dangerous
         # than usual purge requests.
         # Therefore, require a basic authentication.
-        if( req.http.Authorization == "Basic aW52YWxpZGF0ZTpkeWRuZWVjaXJuaXRub2lrT293bXVjbmF5Z0F3amFscA==" ) {
+        if( req.http.Authorization == "Basic " + std.getenv("VARNISH_PURGE_KEY")) {
           std.log("Purge accepted");
           call handle_purge_requests;
         } else {
