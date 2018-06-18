@@ -3,26 +3,29 @@ acl blacklist {
 }
 
 sub vcl_recv {
-  // Blacklist
-  if(req.http.client-ip && std.ip(req.http.client-ip, "0.0.0.0") ~ blacklist) {
-    return(synth(403,"Banned"));
-  }
-  // If https sticky cookie is set, redirect
-  if( req.http.cookie ~ "drupal_stick_to_https" && req.http.X-Forwarded-Proto != "https" ) {
-    return(synth(301, "https://"  + req.http.host + req.url ));
-  }
-  // If urls is sensible, switch protocol
-  if( req.http.X-Forwarded-Proto == "http" && req.url ~ "/(ecas|login|logout|register|user)" ) {
-    return(synth(301, "https://"  + req.http.host + req.url ));
-  }
-  // Basic url sercure list :
-  if (
-    req.url ~ "(?i)\.(sql?|dump)\??.*$" ||
-    req.url ~ "\/\.(git|svn|htpasswd|htaccess|phps)" ||
-    req.url ~ "\.(engine|inc|info|install|make|module|profile|test|po|sh|theme|tpl(\.php)?|xtmpl|svn-base)$"
+    // Blacklist
+    if(req.http.client-ip && std.ip(req.http.client-ip, "0.0.0.0") ~ blacklist) {
+        return(synth(403,"Banned"));
+    }
+    // If https sticky cookie is set, redirect
+    if( req.http.cookie ~ "drupal_stick_to_https" && req.http.X-Forwarded-Proto != "https" ) {
+        return(synth(301, "https://"  + req.http.host + req.url ));
+    }
+    // If urls is sensible, switch protocol
+    if( req.http.X-Forwarded-Proto == "http" && req.url ~ "/(ecas|login|logout|register|user)" ) {
+        return(synth(301, "https://"  + req.http.host + req.url ));
+    }
+    // Basic url secure list :
+    if (
+        req.url ~ "(?i)\.(sql?|dump)\??.*$" ||
+        req.url ~ "\/\.(git|svn|htpasswd|htaccess|phps)" ||
+        req.url ~ "\.(engine|inc|info|install|make|module|profile|test|po|sh|theme|tpl(\.php)?|xtmpl|svn-base)$" ||
+        req.url ~ "^sites/+[^/]+/+files(/+[^/]+)*/+private_files" ||
+        req.url ~ "/update\.php(\?.*)?$" ||
+        req.url ~ "/(a1|m|ng(ok)?1?)\.php(\?.*)?$"
     ) {
-    return(synth(451, "Blacklisted"));
-  }
+        return(synth(451, "Blacklisted"));
+    }
 }
 
 sub vcl_synth {
