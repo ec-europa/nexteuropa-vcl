@@ -75,7 +75,10 @@ sub handle_flexible_purge_requests {
             }
         }
     }
-    return (synth(400, "ERROR, bad type:" + req.http.X-Invalidate-Type));
+    else {
+        std.log("ERROR, bad type:" + req.http.X-Invalidate-Type);
+        return (synth(400, "ERROR"));
+    }
 }
 
 # Sanitize known headers with the intent of using them to compose ban
@@ -93,6 +96,7 @@ sub check_invalidate_headers {
         req.http.X-Invalidate-Base-Path ~ " && " ||
         req.http.X-Invalidate-Regexp ~ " && "
     ) {
+        std.log("X-Invalidate-* FORBIDDEN. DEBUG: Tag: " + req.http.X-Invalidate-Tag + "# Host: " + req.http.X-Invalidate-Host + " # Base-Path: " + req.http.X-Invalidate-Base-Path + " # Regexp :" + req.http.X-Invalidate-Regexp);
         return (synth(405, "FORBIDDEN"));
     }
 }
