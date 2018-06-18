@@ -37,7 +37,7 @@ varnish v1 -vcl+backend {
 client c1 {
     txreq -url "/page.html" -hdr "Host: europa.eu"
     rxresp
-    expect resp.http.Cache-Control == "public,max-age=600,must-revalidate"
+    expect resp.http.Cache-Control == "public,max-age=3600,must-revalidate"
 }
 
 # test , check we're at 0
