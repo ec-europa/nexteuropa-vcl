@@ -37,7 +37,7 @@ varnish v1 -vcl+backend {
 client c1 {
     txreq -url "/mypage" -hdr "Host: europa.eu"
     rxresp
-    expect resp.http.Cache-Control == "public,max-age=10,must-revalidate"
+    expect resp.http.Cache-Control == "public,max-age=600,must-revalidate"
 }
 
 # Client 2, tries to purge without creds :
