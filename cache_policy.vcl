@@ -1,37 +1,37 @@
 sub vcl_backend_response { 
-    if(
-        (bereq.method == "HEAD" || bereq.method == "GET")
-        &&
-        beresp.status == 200
-        && 
-        (bereq.url !~ "/+(ecas|logout|reset|user)")
-        ) {
-        // default behavior for request without any cookie :
-        if ( !bereq.http.cookie && 
-        !(bereq.url ~ "^/+status\.php$" ||
-         bereq.url ~ "/+(admin|users?|info|flag)(/+.*)?$" ||
-         bereq.url ~ ".*/+a(jax|hah)/.*$" ||
-         bereq.url ~ "/+system/+files/+.*$")) {
-            // cache content for 10m;
-            set beresp.ttl = 10m;
-            //  keep stall content for 24h
-            set beresp.grace = 24h;
-            //browser cache
-            set beresp.http.Cache-Control = "public,max-age=10,must-revalidate";
-        }
+    if (bereq.method == "HEAD" || bereq.method == "GET") {
+        if (beresp.status ~ (200|30([1-3]|[7-8])) {
+            if (bereq.url !~ "/+(ecas|logout|reset|user)") {
+                // default behavior for request without any cookie :
+                if ( !bereq.http.cookie && 
+                    !(bereq.url ~ "^/+status\.php$" ||
+                    bereq.url ~ "/+(admin|users?|info|flag)(/+.*)?$" ||
+                    bereq.url ~ ".*/+a(jax|hah)/.*$" ||
+                    bereq.url ~ "/+system/+files/+.*$")) {
+                        // cache content for 10m;
+                        set beresp.ttl = 10m;
+                        //  keep stall content for 24h
+                        set beresp.grace = 24h;
+                        //browser cache
+                        set beresp.http.Cache-Control = "public,max-age=10,must-revalidate";
+                }
 
-        // for static content
-        if ( bereq.url ~ "(?i)\.(bz2|css|eot|gif|gz|ico|jpe?g|js|mp3|ogg|otf|pdf|png|rar|svg|swf|tbz|tgz|ttf|woff2?|zip)(\?.*|)$"
-           &&
-           bereq.url !~ "/+system/+"
-        ) {
-            // cache content for 1h
-            set beresp.ttl = 1h;
-            //  keep stall content for 24h
-            set beresp.grace = 24h;
-            //browser cache
-            set beresp.http.Cache-Control = "public,max-age=3600,s-maxage=3600";
-         }
+                // for static content
+                if ( bereq.url ~ "(?i)\.(bz2|css|eot|gif|gz|ico|jpe?g|js|mp3|ogg|otf|pdf|png|rar|svg|swf|tbz|tgz|ttf|woff2?|zip)(\?.*|)$" &&
+                    bereq.url !~ "/+system/+") {
+                        // cache content for 1h
+                        set beresp.ttl = 1h;
+                        //  keep stall content for 24h
+                        set beresp.grace = 24h;
+                        //browser cache
+                        set beresp.http.Cache-Control = "public,max-age=3600,s-maxage=3600";
+                 }
+            }
+        }
+        else {
+            set beresp.ttl = 15s;
+            set beresp.grace = 2m;
+        }
     }
 }
 sub vcl_hash {
