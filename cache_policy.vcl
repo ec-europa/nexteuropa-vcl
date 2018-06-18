@@ -1,6 +1,10 @@
 sub vcl_backend_response { 
     if (bereq.method == "HEAD" || bereq.method == "GET") {
-        if (beresp.status ~ "(200|30([1-3]|[7-8]))") {
+        if (
+            beresp.status == 200 ||
+            beresp.status == 301 ||
+            beresp.status == 302
+        ) {
             if (bereq.url !~ "/+(ecas|logout|reset|user)") {
                 // default behavior for request without any cookie :
                 if ( 
