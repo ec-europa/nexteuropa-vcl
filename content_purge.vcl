@@ -1,5 +1,4 @@
 sub vcl_recv {
-
     # invalidate:dydneecirnitnoikOowmucnaygAwjalp (testing cluster)
     if (req.method ~ "(PURGE|BAN)") {
         std.log("Purge received");
@@ -17,7 +16,6 @@ sub vcl_recv {
     }
 }
 
-
 sub handle_purge_requests {
     if (req.method == "PURGE") {
         # purge does not fit our needs because it only evicts Vary-based
@@ -33,54 +31,52 @@ sub handle_purge_requests {
     }
 }
 
-
 sub handle_simple_purge_requests {
     # Ban the provided URL as is.
     ban("req.http.host == " + req.http.host + " && req.url == " + req.url);
-
     # The provided URL usually has no trailing slash; also invalidate variants having one.
     if (req.url !~ "/+$") {
         ban("req.http.host == " + req.http.host + " && req.url == " + req.url + "/");
     }
-
-    return (synth(200, "PURGED"));
+    std.log(req.http.host + req.url + "PURGED");
+        return (synth(200, "PURGED"));
 }
 
 # Handle PURGE requests emitted by the "Flexible Purge" Drupal module.
 sub handle_flexible_purge_requests {
     call check_invalidate_headers;
     std.log("Purge accepted flexible");
-
     if (req.http.X-Invalidate-Type == "full") {
         if (req.http.X-Invalidate-Tag) {
             std.log("Tag based purge");
             ban("req.http.X-Application-Tag == " + req.http.X-Invalidate-Tag);
+            std.log(req.http.X-Invalidate-Tag + "PURGED");
                 return (synth(200, "PURGED"));
         }
         elseif (req.http.X-Invalidate-Host && req.http.X-Invalidate-Base-Path) {
-            std.log("X-Invalidate-xxx based purge");
+            std.log(req.http.X-Invalidate-Host + req.http.X-Invalidate-Base-Path + "PURGED");
             ban("req.http.host == " + req.http.X-Invalidate-Host + " && req.url ~ ^" + req.http.X-Invalidate-Base-Path);
                 return (synth(200, "PURGED"));
         }
     }
     elseif (req.http.X-Invalidate-Type ~ "^(wildcard|regexp-(multiple|single))$") {
-
         if (req.http.X-Invalidate-Regexp) {
             if (req.http.X-Invalidate-Tag) {
                 std.log("X-Invalidate-Tag regex based purge");
                 ban("req.http.X-Application-Tag == " + req.http.X-Invalidate-Tag + " && req.http.X-FPFIS-Drupal-Path ~ " + req.http.X-Invalidate-Regexp);
+                std.log(req.http.X-Invalidate-Tag + req.http.X-Invalidate-Regexp + "PURGED");
                     return (synth(200, "PURGED"));
             }
             else if (req.http.X-Invalidate-Host) {
                 std.log("X-Invalidate-xxx regex based purge");
                 ban("req.http.host == " + req.http.X-Invalidate-Host + " && req.url ~ " + req.http.X-Invalidate-Regexp);
+                std.log(req.http.X-Invalidate-Host + req.http.X-Invalidate-Regexp + "PURGED");
                     return (synth(200, "PURGED"));
             }
         }
     }
-    return (synth(400, "ERROR"));
+    return (synth(400, "ERROR, bad type:" + req.http.X-Invalidate-Type));
 }
-
 
 # Sanitize known headers with the intent of using them to compose ban
 # statements.
@@ -91,16 +87,12 @@ sub handle_flexible_purge_requests {
 # containing " && " into the ban statement as they are very likely to be an
 # injection attempt.
 sub check_invalidate_headers {
-    if (req.http.X-Invalidate-Tag ~ " && ") {
-            return (synth(405, "FORBIDDEN"));
-    }
-    if (req.http.X-Invalidate-Host ~ " && ") {
-            return (synth(406, "FORBIDDEN"));
-    }
-    if (req.http.X-Invalidate-Base-Path ~ " && ") {
-            return (synth(407, "FORBIDDEN"));
-    }
-    if (req.http.X-Invalidate-Regexp ~ " && ") {
-            return (synth(408, "FORBIDDEN"));
+    if (
+        req.http.X-Invalidate-Tag ~ " && " ||
+        req.http.X-Invalidate-Host ~ " && " ||
+        req.http.X-Invalidate-Base-Path ~ " && " ||
+        req.http.X-Invalidate-Regexp ~ " && "
+    ) {
+        return (synth(405, "FORBIDDEN"));
     }
 }
