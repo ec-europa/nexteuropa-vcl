@@ -12,7 +12,6 @@ sub vcl_recv {
         } else {
           return (synth(403, "FORBIDDEN"));
         }
-
     }
 }
 
