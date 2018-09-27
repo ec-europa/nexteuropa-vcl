@@ -4,4 +4,4 @@ pipeline:
     commands:
       - varnishtest -p vcl_dir=$(pwd) test/*.vtc
     environment:
-      - VARNISH_PURGE_KEY=XXXXXXXXX
+      - VARNISH_PURGE_KEY=aW52YWxpZGF0ZTp0ZXN0
