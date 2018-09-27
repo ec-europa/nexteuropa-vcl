@@ -7,7 +7,7 @@ server s1 -repeat 3 {
      txresp -body "myhtml\n"
 } -start
 
-# Basic c4d setup :
+# Basic setup :
 varnish v1 -vcl+backend {
   import directors;
   # Basic config/heplers deployed by salt
