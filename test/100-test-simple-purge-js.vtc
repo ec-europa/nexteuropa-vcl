@@ -49,7 +49,7 @@ client c2 {
 
 # Client 3, tries to simple purge the URL :
 client c3 {
-    txreq -req PURGE -url "/asset.js" -hdr "Authorization: Basic aW52YWxpZGF0ZTpkeWRuZWVjaXJuaXRub2lrT293bXVjbmF5Z0F3amFscA==" -hdr "Host: europa.eu"
+    txreq -req PURGE -url "/asset.js" -hdr "Authorization: Basic aW52YWxpZGF0ZTp0ZXN0" -hdr "Host: europa.eu"
     rxresp
     expect resp.status == 200
 }
