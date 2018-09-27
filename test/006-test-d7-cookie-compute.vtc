@@ -3,10 +3,10 @@ varnishtest "Test drupal7 cookie generation"
 # Keep replying 200 with stupid body
 server s1 -repeat 10 {
      rxreq 
-     expect req.http.X-FPFIS-Drupal-Session == "SESS25ce066f30fc0b9f0bcba74f891cd4a0"
+     expect req.http.X-FPFIS-Drupal-Session == "SESSc0a59ad24620e681566ae51679e1e824"
      txresp -body "myjsbody1\n"
      rxreq 
-     expect req.http.X-FPFIS-Drupal-Session == "SSESS25ce066f30fc0b9f0bcba74f891cd4a0"
+     expect req.http.X-FPFIS-Drupal-Session == "SSESSc0a59ad24620e681566ae51679e1e824"
      txresp -body "myjsbody2\n"
 } -start
 

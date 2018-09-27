@@ -46,28 +46,28 @@ client c1 -repeat 3 {
     rxresp
     expect resp.status == 301
     expect resp.http.Cache-Control ~ "s-maxage=0"
-    txreq -url "/subsite" -hdr "Host: europa.eu" -hdr "X-Forwarded-Proto: https" -hdr "Cookie: SSESS25ce066f30fc0b9f0bcba74f891cd4a0=yes;"
+    txreq -url "/subsite" -hdr "Host: europa.eu" -hdr "X-Forwarded-Proto: https" -hdr "Cookie: SSESSc0a59ad24620e681566ae51679e1e824=yes;"
     rxresp
     expect resp.status == 200
 
     # Bogus auth http/https
-    txreq -url "/subsite" -hdr "Host: europa.eu" -hdr "X-Forwarded-Proto: http"  -hdr "Cookie: SESS25ce066f30fc0b9f0bcba74f891cd4a0=yes;"
+    txreq -url "/subsite" -hdr "Host: europa.eu" -hdr "X-Forwarded-Proto: http"  -hdr "Cookie: SESSc0a59ad24620e681566ae51679e1e824=yes;"
     rxresp
     expect resp.status == 301
     expect resp.http.Cache-Control ~ "s-maxage=0"
-    txreq -url "/subsite" -hdr "Host: europa.eu" -hdr "X-Forwarded-Proto: http" -hdr "Cookie: SSESS25ce066f30fc0b9f0bcba74f891cd4a0=yes;"
+    txreq -url "/subsite" -hdr "Host: europa.eu" -hdr "X-Forwarded-Proto: http" -hdr "Cookie: SSESSc0a59ad24620e681566ae51679e1e824=yes;"
     rxresp
     expect resp.status == 301
     expect resp.http.Cache-Control ~ "s-maxage=0"
-    txreq -url "/subsite" -hdr "Host: europa.eu" -hdr "X-Forwarded-Proto: https" -hdr "Cookie: SSESS25ce066f30fc0b9f0bcba74f891cd4a0=yes;"
+    txreq -url "/subsite" -hdr "Host: europa.eu" -hdr "X-Forwarded-Proto: https" -hdr "Cookie: SSESSc0a59ad24620e681566ae51679e1e824=yes;"
     rxresp
     expect resp.status == 200
 
     # X-Forward-Proto not set :
-    txreq -url "/subsite" -hdr "Host: europa.eu" -hdr "Cookie: SSESS25ce066f30fc0b9f0bcba74f891cd4a0=yes;"
+    txreq -url "/subsite" -hdr "Host: europa.eu" -hdr "Cookie: SSESSc0a59ad24620e681566ae51679e1e824=yes;"
     rxresp
     expect resp.status == 200
-    txreq -url "/subsite" -hdr "Host: europa.eu" -hdr "Cookie: SESS25ce066f30fc0b9f0bcba74f891cd4a0=yes;"
+    txreq -url "/subsite" -hdr "Host: europa.eu" -hdr "Cookie: SESSc0a59ad24620e681566ae51679e1e824=yes;"
     rxresp
     expect resp.status == 200
     txreq -url "/subsite"
