@@ -1,5 +1,5 @@
 sub vcl_recv {
-    # invalidate:dydneecirnitnoikOowmucnaygAwjalp (testing cluster)
+    # invalidate:XXXXXXXXX (testing cluster)
     if (req.method ~ "(PURGE|BAN)") {
         std.log("Purge received");
         # A X-Invalidate-Type header means we are dealing with a "Flexible
