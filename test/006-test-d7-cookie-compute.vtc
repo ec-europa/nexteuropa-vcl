@@ -36,9 +36,9 @@ varnish v1 -vcl+backend {
 
 # Test cases :
 client c1 -repeat 10 {
-    txreq -url "/default" -hdr "Host: europa.eu"
+    txreq -url "/subsite" -hdr "Host: europa.eu"
     rxresp
-    txreq -url "/default" -hdr "Host: europa.eu" -hdr "X-Forwarded-Proto: https"
+    txreq -url "/subsite" -hdr "Host: europa.eu" -hdr "X-Forwarded-Proto: https"
     rxresp
 }
 
