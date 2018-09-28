@@ -1,0 +1,45 @@
+varnishtest "Test drupal7 cookie generation"
+
+# Keep replying 200 with stupid body
+server s1 -repeat 10 {
+     rxreq 
+     expect req.http.X-FPFIS-Drupal-Session == "SESSc0a59ad24620e681566ae51679e1e824"
+     txresp -body "myjsbody1\n"
+     rxreq 
+     expect req.http.X-FPFIS-Drupal-Session == "SSESSc0a59ad24620e681566ae51679e1e824"
+     txresp -body "myjsbody2\n"
+} -start
+
+
+# Basic c4d setup :
+varnish v1 -vcl+backend {
+  import directors;
+
+  # Basic config/heplers deployed by salt
+  include "test/assets/salted.vcl";
+  # Default vcl
+  include "test/assets/default.vcl";
+  # Actual NE vcl
+  include "testing.vcl";
+  
+  # Use the random director
+  sub vcl_init {
+      new cluster = directors.random();
+      cluster.add_backend(s1, 1);
+  }
+
+  sub vcl_backend_fetch {
+    set bereq.backend = cluster.backend();
+  }
+
+} -start
+
+# Test cases :
+client c1 -repeat 10 {
+    txreq -url "/subsite" -hdr "Host: europa.eu"
+    rxresp
+    txreq -url "/subsite" -hdr "Host: europa.eu" -hdr "X-Forwarded-Proto: https"
+    rxresp
+}
+
+client c1 -run

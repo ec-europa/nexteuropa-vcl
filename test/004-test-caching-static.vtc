@@ -1,0 +1,66 @@
+varnishtest "Test static resource caching"
+
+# Keep replying 200 with stupid body
+server s1 -repeat 3 {
+     rxreq
+     expect req.url == "/asset.js"
+     txresp -body "myjsbody1\n"
+} -start
+
+
+# Basic setup :
+varnish v1 -vcl+backend {
+  import directors;
+
+  # Basic config/heplers deployed by salt
+  include "test/assets/salted.vcl";
+  sub vcl_recv {
+    set req.http.X-FPFIS-Application-Base-Path = "/";
+  }
+  # Actual NE vcl
+  include "testing.vcl";
+  # Use the random director
+  sub vcl_init {
+      new cluster = directors.random();
+      cluster.add_backend(s1, 1);
+  }
+
+  sub vcl_backend_fetch {
+    set bereq.backend = cluster.backend();
+  }
+
+} -start
+
+
+
+# Test cases :
+client c1 {
+    txreq -url "/asset.js" -hdr "Host: europa.eu"
+    rxresp
+    expect resp.http.Cache-Control == "public,max-age=3600,s-maxage=3600"
+}
+
+# test , check we're at 0
+
+varnish v1 -expect cache_miss == 0
+varnish v1 -expect cache_hit == 0
+varnish v1 -expect n_object == 0
+
+# Run client 1 time
+client c1 -run
+
+# Check the object has been cached
+varnish v1 -expect cache_miss == 1
+varnish v1 -expect cache_hit == 0
+varnish v1 -expect n_object == 1
+
+# Run client 2 times
+
+client c1 -run
+client c1 -run
+
+# Check object was delivered from cache 2 times
+
+varnish v1 -expect cache_miss == 1
+varnish v1 -expect cache_hit == 2
+varnish v1 -expect n_object == 1

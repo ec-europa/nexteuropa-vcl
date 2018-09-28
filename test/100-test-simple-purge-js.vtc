@@ -1,0 +1,129 @@
+varnishtest "Test simple purge JS"
+
+# Keep replying 200 with stupid body
+server s1 -repeat 7 {
+     rxreq
+     expect req.url == "/asset.js"
+     txresp -body "myjsbody1\n"
+} -start
+
+
+# Basic setup :
+varnish v1 -vcl+backend {
+  import directors;
+
+  # Basic config/heplers deployed by salt
+  include "test/assets/salted.vcl";
+  sub vcl_recv {
+    set req.http.X-FPFIS-Application-Base-Path = "/";
+  }
+  # Actual NE vcl
+  include "testing.vcl";
+  # Use the random director
+  sub vcl_init {
+      new cluster = directors.random();
+      cluster.add_backend(s1, 1);
+  }
+
+  sub vcl_backend_fetch {
+    set bereq.backend = cluster.backend();
+  }
+
+} -start
+
+
+
+# Client 1, request /asset.js :
+client c1 {
+    txreq -url "/asset.js" -hdr "Host: europa.eu"
+    rxresp
+    expect resp.http.Cache-Control == "public,max-age=3600,s-maxage=3600"
+}
+
+# Client 2, tries to purge without creds :
+client c2 {
+    txreq -req PURGE -url "/asset.js" -hdr "Host: europa.eu"
+    rxresp
+    expect resp.status == 403
+}
+
+# Client 3, tries to simple purge the URL :
+client c3 {
+    txreq -req PURGE -url "/asset.js" -hdr "Authorization: Basic aW52YWxpZGF0ZTp0ZXN0" -hdr "Host: europa.eu"
+    rxresp
+    expect resp.status == 200
+}
+
+# Make a instant killer
+varnish v1 -cliok "param.set ban_lurker_age 0"
+varnish v1 -cliok "param.set ban_lurker_sleep 1"
+varnish v1 -cliok "param.set debug +lurker"
+varnish v1 -cliok "param.set debug +syncvsl"
+
+# test , check we're at 0
+varnish v1 -expect client_req == 0
+varnish v1 -expect cache_miss == 0
+varnish v1 -expect cache_hit == 0
+varnish v1 -expect n_object == 0
+
+# Run client 1, first time. expect miss
+client c1 -run
+
+# Check the object has been cached
+varnish v1 -expect client_req == 1
+varnish v1 -expect cache_miss == 1
+varnish v1 -expect cache_hit == 0
+varnish v1 -expect n_object == 1
+
+# Run client 1, 2 times. expect 2 cache hit
+
+client c1 -run
+client c1 -run
+
+# Check object was delivered from cache 2 times
+varnish v1 -expect client_req == 3
+varnish v1 -expect cache_miss == 1
+varnish v1 -expect cache_hit == 2
+varnish v1 -expect n_object == 1
+
+# Run client2 once, expect 403
+client c2 -run
+
+# Nothing should change, 403 for purge expected
+varnish v1 -expect client_req == 4
+varnish v1 -expect cache_miss == 1
+varnish v1 -expect cache_hit == 2
+varnish v1 -expect n_object == 1
+
+# Run client 3, doing actual ban
+client c3 -run
+# Debug :
+varnish v1 -cliok "ban.list"
+
+
+# asset.js should be gone
+varnish v1 -expect client_req == 5
+varnish v1 -expect cache_miss == 1
+varnish v1 -expect cache_hit == 2
+varnish v1 -expect n_object == 1
+varnish v1 -expect bans_completed == 1
+
+# Run client 1, cache should miss
+client c1 -run
+
+# asset.js should be gone, so not hit
+varnish v1 -expect client_req == 6
+varnish v1 -expect cache_miss == 2
+varnish v1 -expect cache_hit == 2
+varnish v1 -expect n_object == 1
+
+# Run client 1 again, cache should hit
+client c1 -run
+
+# asset.js should be gone, so not hit
+varnish v1 -expect client_req == 7
+varnish v1 -expect cache_miss == 2
+varnish v1 -expect cache_hit == 3
+varnish v1 -expect n_object == 1
+
+
