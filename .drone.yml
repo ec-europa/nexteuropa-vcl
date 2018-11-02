@@ -11,7 +11,8 @@ pipeline:
   publish-docker-build:
     image: plugins/docker
     dockerfile: Dockerfile
-    repo: fpfis/varnish-ne:4.1
+    tags: 4.1
+    repo: fpfis/varnish-ne
     secrets: [ DOCKER_USERNAME, DOCKER_PASSWORD ]
     when:
       event: push
