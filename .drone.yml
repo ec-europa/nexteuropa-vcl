@@ -1,7 +1,18 @@
 pipeline:
   test-vcl:
-    image: fpfis/varnish-d7
+    image: fpfis/varnish:4.1
     commands:
-      - varnishtest -p vcl_dir=$(pwd) test/*.vtc
+      - cp -fR ./ /etc/varnish/
+      - varnishtest /etc/varnish/test/*.vtc
     environment:
       - VARNISH_PURGE_KEY=aW52YWxpZGF0ZTp0ZXN0
+
+  # build varnish service
+  publish-docker-build:
+    image: plugins/docker
+    dockerfile: Dockerfile
+    tags: 4.1
+    repo: fpfis/varnish-ne
+    secrets: [ DOCKER_USERNAME, DOCKER_PASSWORD ]
+    when:
+      event: push
