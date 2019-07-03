@@ -1,6 +1,11 @@
+matrix:
+    VARNISH_VERSION:
+    - 4.1
+    - 6.0
+
 pipeline:
   test-vcl:
-    image: fpfis/varnish:4.1
+    image: fpfis/varnish:${VARNISH_VERSION}
     commands:
       - cp -fR ./ /etc/varnish/
       - varnishtest /etc/varnish/test/*.vtc
@@ -11,7 +16,7 @@ pipeline:
   publish-docker-build:
     image: plugins/docker
     dockerfile: Dockerfile
-    tags: 4.1
+    tags: ${VARNISH_VERSION}
     repo: fpfis/varnish-ne
     secrets: [ DOCKER_USERNAME, DOCKER_PASSWORD ]
     when:
