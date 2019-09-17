@@ -62,13 +62,13 @@ sub handle_flexible_purge_requests {
         if (req.http.X-Invalidate-Regexp) {
             if (req.http.X-Invalidate-Tag) {
                 std.log("X-Invalidate-Tag regex based purge");
-                ban("req.http.X-Application-Tag == " + req.http.X-Invalidate-Tag + " && req.http.X-FPFIS-Drupal-Path ~ " + req.http.X-Invalidate-Regexp);
+                ban("req.http.X-Application-Tag == " + req.http.X-Invalidate-Tag + " && req.http.X-FPFIS-Application-Path ~ " + req.http.X-Invalidate-Regexp);
                 std.log(req.http.X-Invalidate-Tag + req.http.X-Invalidate-Regexp + "PURGED");
                     return (synth(200, "PURGED"));
             }
             else if (req.http.X-Invalidate-Host) {
                 std.log("X-Invalidate-xxx regex based purge");
-                ban("req.http.host == " + req.http.X-Invalidate-Host + " && req.url ~ " + req.http.X-Invalidate-Regexp);
+                ban("req.http.host == " + req.http.X-Invalidate-Host + " && req.http.X-FPFIS-Application-Path ~ " + req.http.X-Invalidate-Regexp);
                 std.log(req.http.X-Invalidate-Host + req.http.X-Invalidate-Regexp + "PURGED");
                     return (synth(200, "PURGED"));
             }
