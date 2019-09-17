@@ -58,7 +58,7 @@ sub handle_flexible_purge_requests {
                 return (synth(200, "PURGED"));
         }
     }
-    elseif (req.http.X-Invalidate-Type ~ "^(wildcard|regexp-(multiple|single))$") {
+    elseif (req.http.X-Invalidate-Type ~ "^(wildcard|regexp(-(multiple|single))?)$") {
         if (req.http.X-Invalidate-Regexp) {
             if (req.http.X-Invalidate-Tag) {
                 std.log("X-Invalidate-Tag regex based purge");
