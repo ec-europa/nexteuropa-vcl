@@ -37,7 +37,7 @@ sub handle_simple_purge_requests {
     if (req.url !~ "/+$") {
         ban("req.http.host == " + req.http.host + " && req.url == " + req.url + "/");
     }
-    std.log(req.http.host + req.url + "PURGED");
+    std.log(req.http.host + " " + req.url + " PURGED");
         return (synth(200, "PURGED"));
 }
 
@@ -49,11 +49,11 @@ sub handle_flexible_purge_requests {
         if (req.http.X-Invalidate-Tag) {
             std.log("Tag based purge");
             ban("req.http.X-Application-Tag == " + req.http.X-Invalidate-Tag);
-            std.log(req.http.X-Invalidate-Tag + "PURGED");
+            std.log(req.http.X-Invalidate-Tag + " PURGED");
                 return (synth(200, "PURGED"));
         }
         elseif (req.http.X-Invalidate-Host && req.http.X-Invalidate-Base-Path) {
-            std.log(req.http.X-Invalidate-Host + req.http.X-Invalidate-Base-Path + "PURGED");
+            std.log(req.http.X-Invalidate-Host + " " + req.http.X-Invalidate-Base-Path + "PURGED");
             ban("req.http.host == " + req.http.X-Invalidate-Host + " && req.url ~ ^" + req.http.X-Invalidate-Base-Path);
                 return (synth(200, "PURGED"));
         }
@@ -63,19 +63,19 @@ sub handle_flexible_purge_requests {
             if (req.http.X-Invalidate-Tag) {
                 std.log("X-Invalidate-Tag regex based purge");
                 ban("req.http.X-Application-Tag == " + req.http.X-Invalidate-Tag + " && req.http.X-FPFIS-Application-Path ~ " + req.http.X-Invalidate-Regexp);
-                std.log(req.http.X-Invalidate-Tag + req.http.X-Invalidate-Regexp + "PURGED");
+                std.log(req.http.X-Invalidate-Tag + " " + req.http.X-Invalidate-Regexp + " PURGED");
                     return (synth(200, "PURGED"));
             }
             else if (req.http.X-Invalidate-Host) {
-                std.log("X-Invalidate-xxx regex based purge");
+                std.log("X-Invalidate-Host regex based purge");
                 ban("req.http.host == " + req.http.X-Invalidate-Host + " && req.http.X-FPFIS-Application-Path ~ " + req.http.X-Invalidate-Regexp);
-                std.log(req.http.X-Invalidate-Host + req.http.X-Invalidate-Regexp + "PURGED");
+                std.log(req.http.X-Invalidate-Host + " " + req.http.X-Invalidate-Regexp + " PURGED");
                     return (synth(200, "PURGED"));
             }
         }
     }
     else {
-        std.log("ERROR, bad type:" + req.http.X-Invalidate-Type);
+        std.log("ERROR, bad type: " + req.http.X-Invalidate-Type);
         return (synth(400, "ERROR"));
     }
 }
