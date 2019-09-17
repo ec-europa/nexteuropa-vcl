@@ -21,3 +21,4 @@ pipeline:
     secrets: [ DOCKER_USERNAME, DOCKER_PASSWORD ]
     when:
       event: push
+      branch: production
