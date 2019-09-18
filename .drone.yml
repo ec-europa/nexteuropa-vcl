@@ -19,6 +19,8 @@ pipeline:
     tags: ${VARNISH_VERSION}
     repo: fpfis/varnish-ne
     secrets: [ DOCKER_USERNAME, DOCKER_PASSWORD ]
+    build_args:
+      - varnish_version=${VARNISH_VERSION}
     when:
       event: push
       branch: production
