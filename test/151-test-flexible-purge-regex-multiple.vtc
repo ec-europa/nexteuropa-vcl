@@ -15,7 +15,7 @@ varnish v1 -vcl+backend {
   include "test/assets/salted.vcl";
   sub vcl_recv {
     set req.http.X-FPFIS-Application-Base-Path = "/";
-    set req.http.X-FPFIS-Drupal-Path = req.url;
+    set req.http.X-FPFIS-Application-Path = regsub(req.url, "^(\/)/*(.*)$", "\2");
     set req.http.X-Application-Tag = "Awesome-Drupal";
 
   }
@@ -50,14 +50,14 @@ client c1 {
 
 # Client 2, tries to purge without creds :
 client c2 {
-    txreq -req PURGE -url "/asset.js" -hdr "X-Invalidate-Tag: Awesome-Drupal" -hdr "X-Invalidate-Regexp: /(asset.css|asset.js)" -hdr "X-Invalidate-Type: regexp-multiple" -hdr "Host: europa.eu"
+    txreq -req PURGE -url "/asset.js" -hdr "X-Invalidate-Tag: Awesome-Drupal" -hdr "X-Invalidate-Regexp: (^asset.css|^asset.js)" -hdr "X-Invalidate-Type: regexp-multiple" -hdr "Host: europa.eu"
     rxresp
     expect resp.status == 403
 }
 
 # Client 3, tries to simple purge the URL :
 client c3 {
-    txreq -req PURGE -url "/asset.js" -hdr "X-Invalidate-Tag: Awesome-Drupal" -hdr "X-Invalidate-Regexp: /(asset.css|asset.js)" -hdr "X-Invalidate-Type: regexp-multiple" -hdr "Authorization: Basic aW52YWxpZGF0ZTp0ZXN0" -hdr "Host: europa.eu"
+    txreq -req PURGE -url "/asset.js" -hdr "X-Invalidate-Tag: Awesome-Drupal" -hdr "X-Invalidate-Regexp: (^asset.css|^asset.js)" -hdr "X-Invalidate-Type: regexp-multiple" -hdr "Authorization: Basic aW52YWxpZGF0ZTp0ZXN0" -hdr "Host: europa.eu"
     rxresp
     expect resp.status == 200
 }
@@ -117,10 +117,10 @@ varnish v1 -expect cache_hit == 6
 varnish v1 -expect n_object == 3
 varnish v1 -expect bans_completed == 1
 
-# Run client 1, cache should miss
+# Run client 1, cache should miss except for noasset.css
 client c1 -run
 
-# asset.js should be gone, so not hit
+# noasset.css should be gone, only 2 miss
 varnish v1 -expect client_req == 14
 varnish v1 -expect cache_miss == 5
 varnish v1 -expect cache_hit == 7
