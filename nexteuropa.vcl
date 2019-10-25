@@ -3,6 +3,7 @@ sub vcl_backend_response {
 }
 
 include "nexteuropa/error_page.vcl";
+include "nexteuropa/static_content.vcl";
 include "nexteuropa/content_purge.vcl";
 include "nexteuropa/secure.vcl";
 include "nexteuropa/handle_bots.vcl";

@@ -23,16 +23,23 @@ sub vcl_backend_response {
                 }
 
                 // for static content
-                if ( 
-                    (bereq.url ~ "(?i)\.(bmp|bz2|(doc|xls|ppt)x?|mkv|css|eot|gif|gz|html?|ico|jpe?g|js|mp3|ogg|otf|pdf|png|rar|svg|swf|tbz|tgz|txz|ttf|woff2?|xml|xz|zip)(\?.*|)$" && bereq.url !~ "/+system/+") ||
-                    bereq.url ~ "^(?:misc|modules|themes|sites/+all|sites/+[^/]+/(?:themes|modules))/"
-                ) {
+                if (bereq.http.X-FPFIS-Hint ~ ";(DrupalStaticFile|DrupalStaticResource)") {
                     // cache content for 1h
                     set beresp.ttl = 1h;
                     //  keep stall content for 24h
                     set beresp.grace = 24h;
                     //browser cache
                     set beresp.http.Cache-Control = "public,max-age=3600,s-maxage=3600";
+                }elseif(bereq.http.X-FPFIS-Hint ~ ";DrupalStaticSitesFile"){
+                    // Look for PHP+Drupal specific headers
+                    if (beresp.status == 200 && (beresp.http.Cache-Control == "no-cache, must-revalidate, post-check=0, pre-check=0" || beresp.http.X-Drupal-Cache)) {
+                        // The file request was handled dynamically -- do not cache it.
+                        set beresp.ttl = 0s;
+                        set beresp.grace = 0s;
+                        set beresp.http.X-FPFIS-Debug = "generated dynamically => not cached; " + bereq.http.X-FPFIS-Debug;
+                        // ... and prevent it from setting any cookie.
+                        return(deliver);
+                    }
                 }
             }
         }
@@ -40,7 +47,7 @@ sub vcl_backend_response {
             set beresp.ttl = 15s;
             set beresp.grace = 2m;
         }
-        # Don't cache HTTP responses over 1 MiB
+        // Don't cache HTTP responses over 1 MiB
         if (std.integer(beresp.http.content-length, 0) > 1048576) {
             set beresp.ttl = 0s;
             set beresp.grace = 0s;
@@ -51,5 +58,6 @@ sub vcl_hash {
     if (req.http.X-Forwarded-Proto) {
       hash_data(req.http.X-Forwarded-Proto);
     }
-
 }
+
+
