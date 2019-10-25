@@ -1,0 +1,103 @@
+varnishtest "Test simple purge complex"
+
+# Keep replying 200 with stupid body
+server s1 -repeat 8 {
+     rxreq
+     txresp -body "whatever body\n"
+} -start
+
+
+# Basic setup :
+varnish v1 -vcl+backend {
+  import directors;
+
+  # Basic config/heplers deployed by salt
+  include "test/assets/salted.vcl";
+  # Default vcl
+  include "test/assets/default.vcl";
+  # Actual NE vcl
+  include "testing.vcl";
+  # Use the random director
+  sub vcl_init {
+      new cluster = directors.random();
+      cluster.add_backend(s1, 1);
+  }
+
+  sub vcl_backend_fetch {
+    set bereq.backend = cluster.backend();
+  }
+  
+  sub vcl_deliver {
+      set resp.http.X-FPFIS-Hint = req.http.X-FPFIS-Hint;
+  }
+
+} -start
+
+
+
+# Client 1, try DrupalStaticFile :
+client c1 {
+    txreq -url "/asset.js" -hdr "Host: europa.eu"
+    rxresp
+    expect resp.http.X-FPFIS-Hint ~ ";DrupalStaticFile"
+    expect resp.http.X-FPFIS-Hint !~ ";DrupalStaticResource"
+    expect resp.http.X-FPFIS-Hint !~ ";DrupalStaticSitesFile"
+    expect resp.http.Cache-Control == "public,max-age=3600,s-maxage=3600"
+}
+
+# Client 2, try DrupalStaticResource:
+client c2 {
+    txreq -url "/misc/asset.js" -hdr "Host: europa.eu"
+    rxresp
+    expect resp.http.X-FPFIS-Hint ~ ";DrupalStaticFile"
+    expect resp.http.X-FPFIS-Hint ~ ";DrupalStaticResource"
+    expect resp.http.X-FPFIS-Hint !~ ";DrupalStaticSitesFile"
+    expect resp.http.Cache-Control == "public,max-age=3600,s-maxage=3600"
+    
+    txreq -url "/sites/default/modules/asset.js" -hdr "Host: europa.eu"
+    rxresp
+    expect resp.http.X-FPFIS-Hint ~ ";DrupalStaticFile"
+    expect resp.http.X-FPFIS-Hint ~ ";DrupalStaticResource"
+    expect resp.http.X-FPFIS-Hint !~ ";DrupalStaticSitesFile"
+    expect resp.http.Cache-Control == "public,max-age=3600,s-maxage=3600"
+}
+
+# Client 1, try DrupalStaticSitesFile :
+client c3 {
+    txreq -url "/sites/default/files/asset.js" -hdr "Host: europa.eu"
+    rxresp
+    expect resp.http.X-FPFIS-Hint ~ ";DrupalStaticFile"
+    expect resp.http.X-FPFIS-Hint !~ ";DrupalStaticResource"
+    expect resp.http.X-FPFIS-Hint ~ ";DrupalStaticSitesFile"
+    expect resp.http.Cache-Control == "public,max-age=3600,s-maxage=3600"
+    
+    txreq -url "/sites/default/files/private_files/asset.js" -hdr "Host: europa.eu"
+    rxresp
+    expect resp.http.X-FPFIS-Hint ~ ";DrupalStaticFile"
+    expect resp.http.X-FPFIS-Hint !~ ";DrupalStaticResource"
+    expect resp.http.X-FPFIS-Hint !~ ";DrupalStaticSitesFile"
+    expect resp.http.Cache-Control == "public,max-age=3600,s-maxage=3600"
+}
+
+client c1 -run
+
+varnish v1 -expect client_req == 1
+varnish v1 -expect cache_miss == 1
+varnish v1 -expect cache_hit == 0
+varnish v1 -expect n_object == 1
+
+client c2 -run
+
+varnish v1 -expect client_req == 3
+varnish v1 -expect cache_miss == 3
+varnish v1 -expect cache_hit == 0
+varnish v1 -expect n_object == 3
+
+client c3 -run
+
+varnish v1 -expect client_req == 5
+varnish v1 -expect cache_miss == 5
+varnish v1 -expect cache_hit == 0
+varnish v1 -expect n_object == 5
+
+
