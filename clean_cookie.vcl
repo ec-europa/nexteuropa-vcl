@@ -5,12 +5,11 @@ sub vcl_recv {
         req.method == "GET"
     ) {
         if (req.http.X-FPFIS-Hint ~ ";(DrupalStaticSitesFile|DrupalStaticResource)") {
-            std.log("Hint DrupalSiteFile, removing cookie from vcl_backend_response");
+            std.log("Hint for DrupalStaticSitesFile|DrupalStaticResource, removing cookie from vcl_recv");
             // We still unset cookies, because typically, dynamically generated
             // files under sites/*/files do not rely on authentication
             unset req.http.cookie;
         }
-    
         // Clean every cookie, except NO_CACHE and Drupal
         if ( req.http.cookie && req.http.X-FPFIS-Drupal-Session ) {
             cookie.parse(req.http.cookie);
@@ -34,7 +33,7 @@ sub vcl_backend_response {
         // 2 - triggered dynamic executions may want to enforce some default cookies
         // 3 - which we do not want since they may override already set
         // cookies (e.g. language preference or worse, session cookie).
-        std.log("Hint DrupalStaticSitesFile, removing cookie from vcl_backend_response");
+        std.log("Hint for DrupalStaticSitesFile, removing cookie from vcl_backend_response");
         unset beresp.http.Set-Cookie;
     }
 }
