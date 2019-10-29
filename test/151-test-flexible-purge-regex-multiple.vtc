@@ -13,12 +13,8 @@ varnish v1 -vcl+backend {
 
   # Basic config/heplers deployed by salt
   include "test/assets/salted.vcl";
-  sub vcl_recv {
-    set req.http.X-FPFIS-Application-Base-Path = "/";
-    set req.http.X-FPFIS-Application-Path = regsub(req.url, "^(\/)/*(.*)$", "\2");
-    set req.http.X-Application-Tag = "Awesome-Drupal";
-
-  }
+  # Default vcl
+  include "test/assets/default.vcl";
   # Actual NE vcl
   include "testing.vcl";
   # Use the random director
