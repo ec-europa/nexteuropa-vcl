@@ -2,7 +2,7 @@
 Base NextEuropa VCL configuration
 
 ## Information
-- Basic requirements (vmod) are mentionned in testing.vcl
+- Basic requirements (vmod) are mentioned in testing.vcl
 - This VCL is included from the processed salt recipe : https://github.com/ec-europa/nexteuropa-vcl
 
 ## Deploy
