@@ -37,3 +37,13 @@ sub vcl_synth {
         return (deliver);
     }
 }
+
+
+# Called before the response is delivered to the client.
+sub vcl_deliver {
+  # rename X-Varnish to X-FPFIS
+  set resp.http.X-FPFIS = resp.http.X-Varnish;
+  unset resp.http.X-Varnish;
+  unset resp.http.Via;
+
+}
