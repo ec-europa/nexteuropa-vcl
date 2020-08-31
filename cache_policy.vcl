@@ -1,3 +1,7 @@
+sub vcl_recv {
+    unset req.http.Authorization;
+}
+
 sub vcl_backend_response { 
     if (bereq.method == "HEAD" || bereq.method == "GET") {
         if (
